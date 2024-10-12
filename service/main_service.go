@@ -19,6 +19,7 @@ func SetupRoutes(router *gin.Engine) {
 		private.Use(middleware.JWTAuthMiddleware())
 		{
 			CVRoute(private)
+			PortofolioRoute(private)
 		}
 	}
 
