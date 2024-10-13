@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"help/helper"
-	"help/model/response"
+	"loom/helper"
+	"loom/model/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

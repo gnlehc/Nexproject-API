@@ -2,10 +2,10 @@ package helper
 
 import (
 	"errors"
-	"help/database"
-	"help/model"
-	"help/model/request"
-	"help/model/response"
+	"loom/database"
+	"loom/model"
+	"loom/model/request"
+	"loom/model/response"
 	"net/http"
 	"strings"
 
@@ -105,6 +105,23 @@ func RegisterTalent(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
-func EditProfile() {
-
+func GetAllTalents(c *gin.Context) {
+	var talents []model.Talent
+	if err := database.GlobalDB.Find(&talents).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to retrieve Talents",
+		})
+		return
+	}
+	if len(talents) == 0 {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			StatusCode: http.StatusNotFound,
+			Message:    "No Talent found",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.GetAllTalentResponseDTO{
+		Talents: talents,
+	})
 }

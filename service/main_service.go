@@ -1,7 +1,7 @@
 package service
 
 import (
-	"help/middleware"
+	"loom/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +20,7 @@ func SetupRoutes(router *gin.Engine) {
 		{
 			CVRoute(private)
 			PortofolioRoute(private)
+			JobRoutes(private)
 		}
 	}
 

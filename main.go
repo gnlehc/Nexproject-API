@@ -1,10 +1,10 @@
 package main
 
 import (
-	"help/database"
-	"help/database/migrate"
-	"help/service"
 	"log"
+	"loom/database"
+	"loom/database/migrate"
+	"loom/service"
 
 	"github.com/gin-gonic/gin"
 )

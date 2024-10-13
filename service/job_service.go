@@ -1,0 +1,12 @@
+package service
+
+import (
+	"loom/helper"
+
+	"github.com/gin-gonic/gin"
+)
+
+func JobRoutes(private *gin.RouterGroup) {
+	private.POST("/post-a-job", helper.PostJob)
+	private.GET("/get-all-job", helper.GetAllJobs)
+}

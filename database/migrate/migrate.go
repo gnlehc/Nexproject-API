@@ -1,9 +1,9 @@
 package migrate
 
 import (
-	"help/helper"
-	"help/model"
 	"log"
+	"loom/helper"
+	"loom/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

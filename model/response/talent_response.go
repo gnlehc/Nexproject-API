@@ -1,6 +1,10 @@
 package response
 
-import "github.com/google/uuid"
+import (
+	"loom/model"
+
+	"github.com/google/uuid"
+)
 
 type TalentLoginResponseDTO struct {
 	StatusCode int
@@ -12,4 +16,8 @@ type TalentLoginResponseDTO struct {
 type TalentLoginData struct {
 	TalentID uuid.UUID
 	Email    string
+}
+
+type GetAllTalentResponseDTO struct {
+	Talents []model.Talent
 }

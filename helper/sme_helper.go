@@ -2,10 +2,10 @@ package helper
 
 import (
 	"errors"
-	"help/database"
-	"help/model"
-	"help/model/request"
-	"help/model/response"
+	"loom/database"
+	"loom/model"
+	"loom/model/request"
+	"loom/model/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
