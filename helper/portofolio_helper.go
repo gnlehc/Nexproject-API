@@ -38,6 +38,15 @@ func AddPortofolio(c *gin.Context) {
 		Description:  req.Description,
 		ProjectLink:  req.ProjectLink,
 		CoverImage:   req.CoverImage,
+		TalentID:     JWTClaims.UserID,
+	}
+
+	if err := db.Create(&newPortofolio).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to add portfolio",
+		})
+		return
 	}
 
 	talent.Portofolio = append(talent.Portofolio, newPortofolio)
@@ -45,14 +54,12 @@ func AddPortofolio(c *gin.Context) {
 	if err := db.Save(&talent).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
 			StatusCode: http.StatusInternalServerError,
-			Message:    "Failed to add portofolio",
+			Message:    "Failed to update talent with portfolio",
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, response.BaseResponseDTO{
 		StatusCode: http.StatusOK,
-		Message:    "Portofolio Added Successfully",
+		Message:    "Portfolio Added Successfully",
 	})
-	return
 }

@@ -1,5 +1,7 @@
 package request
 
+import "github.com/google/uuid"
+
 type SMELoginRequestDTO struct {
 	Email    string
 	Password string
@@ -11,5 +13,5 @@ type SMERegisterRequestDTO struct {
 	CompanyName string
 	CEO         string
 	PhoneNumber string
-	SMEType     string
+	SMETypeID   uuid.UUID
 }

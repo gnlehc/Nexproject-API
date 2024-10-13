@@ -34,7 +34,6 @@ func UploadCV(c *gin.Context, cvLink string) error {
 	var updateError error
 	switch jwtClaims.Role {
 	case "Talent":
-		// Update the CV field in the Talent struct
 		updateError = db.Model(&model.Talent{}).Where("talent_id = ?", jwtClaims.UserID).Update("cv", cvLink).Error
 	default:
 		c.JSON(http.StatusForbidden, response.BaseResponseDTO{

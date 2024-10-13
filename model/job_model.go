@@ -7,9 +7,10 @@ import (
 )
 
 type Job struct {
-	JobID          uuid.UUID `json:"JobID" gorm:"primaryKey;autoIncrement:true;not null"`
-	SMEID          uuid.UUID `json:"SMEID" gorm:"type:uuid"`
-	SME            SME       `json:"SME" gorm:"foreignKey:SMEID"`
+	JobID uuid.UUID `json:"JobID" gorm:"primaryKey;autoIncrement:true;not null"`
+	// ForeignKey
+	SMEID uuid.UUID `json:"SMEID"`
+	// SME            SME       `json:"SME" gorm:"foreignKey:SMEID"`
 	JobTitle       string    `json:"JobTitle"`
 	JobDescription string    `json:"JobDescription"`
 	JobType        string    `json:"JobType"`
@@ -19,5 +20,5 @@ type Job struct {
 	Active         bool      `json:"Active"`
 	CreatedAt      time.Time `json:"CreatedAt"`
 	Location       string    `json:"Location"`
-	Skills         []Skill   `json:"Skills" gorm:"type:json"`
+	Skills         []Skill   `json:"Skills" gorm:"many2many:job_skills"`
 }

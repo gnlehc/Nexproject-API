@@ -88,7 +88,7 @@ func RegisterSME(c *gin.Context) {
 		CompanyName:  req.CompanyName,
 		ActiveStatus: true,
 		CEO:          req.CEO,
-		SMEType:      req.SMEType,
+		SMETypeID:    req.SMETypeID,
 		PhoneNumber:  req.PhoneNumber,
 	}
 
