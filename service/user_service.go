@@ -6,13 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRoutes(public *gin.RouterGroup) {
+func AuthUserRoutes(public *gin.RouterGroup) {
 	public.POST("/talent-login",
 		helper.LoginTalent,
 	)
 	public.POST("/talent-register", helper.RegisterTalent)
 	public.POST("/sme-login", helper.LoginSME)
 	public.POST("/sme-register", helper.RegisterSME)
-	public.GET("/get-all-talent", helper.GetAllTalents)
+}
 
+func UserRoutes(private *gin.RouterGroup) {
+	private.GET("/get-all-talent", helper.GetAllTalents)
+	private.POST("/get-all-talent-by-appid", helper.GetAllTalentByAppID)
 }

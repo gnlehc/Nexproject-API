@@ -17,16 +17,17 @@ func DBMigrate(db *gorm.DB) error {
 			return err
 		}
 	}
-	log.Println("Checking if SME table exists...")
+	// log.Println("Checking if SME table exists...")
 	if !migrator.HasTable(&model.SME{}) {
-		log.Println("SME table does not exist, migrating...")
+		// log.Println("SME table does not exist, migrating...")
 		if err := db.AutoMigrate(&model.SME{}); err != nil {
 			return err
 		}
-		log.Println("Successfully migrated SME table.")
-	} else {
-		log.Println("SME table already exists.")
+		// log.Println("Successfully migrated SME table.")
 	}
+	// else {
+	// 	log.Println("SME table already exists.")
+	// }
 
 	if !migrator.HasTable(&model.Skill{}) {
 		if err := db.AutoMigrate(&model.Skill{}); err != nil {
@@ -48,6 +49,11 @@ func DBMigrate(db *gorm.DB) error {
 
 	if !migrator.HasTable(&model.Job{}) {
 		if err := db.AutoMigrate(&model.Job{}); err != nil {
+			return err
+		}
+	}
+	if !migrator.HasTable(&model.TrApplication{}) {
+		if err := db.AutoMigrate(&model.TrApplication{}); err != nil {
 			return err
 		}
 	}

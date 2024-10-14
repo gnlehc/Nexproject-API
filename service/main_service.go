@@ -12,7 +12,7 @@ func SetupRoutes(router *gin.Engine) {
 	{
 		public := api.Group("/public")
 		{
-			UserRoutes(public)
+			AuthUserRoutes(public)
 		}
 
 		private := api.Group("/private")
@@ -21,6 +21,7 @@ func SetupRoutes(router *gin.Engine) {
 			CVRoute(private)
 			PortofolioRoute(private)
 			JobRoutes(private)
+			UserRoutes(private)
 		}
 	}
 

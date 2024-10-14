@@ -1,5 +1,7 @@
 package request
 
+import "github.com/google/uuid"
+
 type TalentLoginRequestDTO struct {
 	Email    string
 	Password string
@@ -10,4 +12,8 @@ type TalentRegisterRequestDTO struct {
 	Password    string
 	FullName    string
 	PhoneNumber string
+}
+
+type GetAllTalentByAppIDRequestDTO struct {
+	AppID uuid.UUID `json:"app_id"`
 }

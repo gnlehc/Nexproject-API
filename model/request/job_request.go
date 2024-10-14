@@ -20,3 +20,9 @@ type JobRequestDTO struct {
 	Location       string
 	Skills         []model.Skill
 }
+
+type ApplyJobRequest struct {
+	TalentID uuid.UUID
+	JobID    uuid.UUID
+	Status   string
+}

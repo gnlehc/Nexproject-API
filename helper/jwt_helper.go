@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var SecretKey = []byte("your_secret_key")
+var SecretKey = []byte("loom_api_secret_key")
 
 type JWTClaims struct {
 	UserID uuid.UUID `json:"user_id"`
@@ -39,9 +40,44 @@ func GenerateJWT(userID uuid.UUID, role string) (string, error) {
 	return tokenString, nil
 }
 
+func GetUserRole(c *gin.Context) (string, error) {
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		return "", errors.New("authorization header not found")
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return SecretKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return "", errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", errors.New("could not parse claims")
+	}
+
+	role, ok := claims["role"].(string)
+	if !ok {
+		return "", errors.New("role not found in token claims")
+	}
+
+	return role, nil
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }
 
 func CheckPasswordHash(password, hash string) bool {
