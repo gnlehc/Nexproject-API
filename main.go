@@ -6,6 +6,7 @@ import (
 	"loom/database/migrate"
 	"loom/service"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,15 @@ func main() {
 	}
 	gin.SetMode(gin.DebugMode)
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"}, // Frontend origin
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 	service.SetupRoutes(r)
 	r.SetTrustedProxies(nil)
 	r.Run(":8080")
