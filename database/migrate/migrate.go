@@ -52,6 +52,11 @@ func DBMigrate(db *gorm.DB) error {
 			return err
 		}
 	}
+	if !migrator.HasTable(&model.ApplicationStatus{}) {
+		if err := db.AutoMigrate(&model.ApplicationStatus{}); err != nil {
+			return err
+		}
+	}
 	if !migrator.HasTable(&model.TrApplication{}) {
 		if err := db.AutoMigrate(&model.TrApplication{}); err != nil {
 			return err
@@ -69,6 +74,9 @@ func DBMigrate(db *gorm.DB) error {
 		return err
 	}
 	if err := SeedSkillsData(db); err != nil {
+		return err
+	}
+	if err := seedApplicationStatusData(db); err != nil {
 		return err
 	}
 
@@ -259,5 +267,37 @@ func SeedSkillsData(db *gorm.DB) error {
 		log.Println("Skills already exist, skipping seeding.")
 	}
 
+	return nil
+}
+
+func seedApplicationStatusData(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&model.ApplicationStatus{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count == 0 {
+		defaultStatusData := []struct {
+			StatusID int
+			Status   string
+		}{
+			{1, "New"},
+			{2, "Reviewed"},
+			{3, "Interviewed"},
+			{4, "Hired"},
+			{5, "Rejected"},
+		}
+
+		for _, status := range defaultStatusData {
+			newStatus := model.ApplicationStatus{
+				StatusID: status.StatusID,
+				Status:   status.Status,
+			}
+
+			if err := db.Create(&newStatus).Error; err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
