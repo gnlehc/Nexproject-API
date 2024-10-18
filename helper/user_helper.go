@@ -50,17 +50,3 @@ func DetermineUserRoleByEmail(c *gin.Context) {
 	}
 	c.JSON(http.StatusNotFound, res)
 }
-
-func DetermineUserRoleByJWT(c *gin.Context) {
-	role, err := GetUserRole(c)
-	if err != nil {
-		c.JSON(401, gin.H{"error": "Unauthorized: Invalid token"})
-		return
-	}
-
-	profileResponse := gin.H{
-		"Role": role,
-	}
-
-	c.JSON(200, profileResponse)
-}

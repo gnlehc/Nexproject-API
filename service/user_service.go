@@ -14,8 +14,7 @@ func AuthUserRoutes(public *gin.RouterGroup) {
 	public.POST("/sme-login", helper.LoginSME)
 	public.POST("/sme-register", helper.RegisterSME)
 	public.POST("/check-user-role", helper.DetermineUserRoleByEmail)
-	public.GET("/check-user-role-by-jwt", helper.DetermineUserRoleByJWT)
-	public.GET("/get-talent-profile", helper.GetTalentProfile)
+
 }
 
 func UserRoutes(private *gin.RouterGroup) {
@@ -23,4 +22,5 @@ func UserRoutes(private *gin.RouterGroup) {
 	private.POST("/get-all-talent-by-appid", helper.GetAllTalentByAppID)
 	private.GET("/get-sme-detail", helper.GetSMEDetail)
 	private.GET("/get-talent-detail", helper.GetTalentDetail)
+	private.GET("/get-user-role", helper.DetermineUserRoleByJWT)
 }
