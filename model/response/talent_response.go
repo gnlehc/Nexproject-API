@@ -19,5 +19,11 @@ type TalentLoginData struct {
 }
 
 type GetAllTalentResponseDTO struct {
-	Talents []model.Talent
+	Talents      []model.Talent
+	BaseResponse BaseResponseDTO
+}
+
+type TalentDetailResponseDTO struct {
+	Data         model.Talent
+	BaseResponse BaseResponseDTO
 }

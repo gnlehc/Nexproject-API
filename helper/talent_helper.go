@@ -191,6 +191,38 @@ func GetAllTalentByAppID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.GetAllTalentResponseDTO{
 		Talents: talents,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}
+
+func GetTalentDetail(c *gin.Context) {
+	db := database.GlobalDB
+	talentID := c.Query("talent_id")
+	if talentID == "" {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Talent_ID is required",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+	var talentDetail model.Talent
+
+	if err := db.Where("talent_id", talentID).Find(&talentDetail).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to get Talent Detail",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response.TalentDetailResponseDTO{
+		Data: talentDetail,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
 	})
 }
 

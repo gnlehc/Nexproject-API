@@ -104,3 +104,32 @@ func RegisterSME(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, res)
 }
+
+func GetSMEDetail(c *gin.Context) {
+	db := database.GlobalDB
+	smeID := c.Query("sme_id")
+	if smeID == "" {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "SMEID is required",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+	var smeDetail model.SME
+
+	if err := db.Where("sme_id = ?", smeID).Find(&smeDetail).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to get SME Detail",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.SMEDetailResponseDTO{
+		Data: smeDetail,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}
