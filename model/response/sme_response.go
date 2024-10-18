@@ -1,6 +1,10 @@
 package response
 
-import "github.com/google/uuid"
+import (
+	"loom/model"
+
+	"github.com/google/uuid"
+)
 
 type SMELoginResponseDTO struct {
 	StatusCode int
@@ -12,4 +16,9 @@ type SMELoginResponseDTO struct {
 type SMELoginData struct {
 	SMEID uuid.UUID
 	Email string
+}
+
+type SMEDetailResponseDTO struct {
+	Data         model.SME
+	BaseResponse BaseResponseDTO
 }

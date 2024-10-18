@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"loom/database"
 	"loom/model"
 	"loom/model/request"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func GetAllJobs(c *gin.Context) {
@@ -34,6 +36,10 @@ func GetAllJobs(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response.GetAllJobResponseDTO{
 		Jobs: jobs,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
 	})
 }
 
@@ -106,6 +112,7 @@ func PostJob(c *gin.Context) {
 }
 
 func ApplyJob(c *gin.Context) {
+	db := database.GlobalDB
 	role, err := GetUserRole(c)
 	if err != nil || role != "Talent" {
 		c.JSON(http.StatusForbidden, response.BaseResponseDTO{
@@ -122,13 +129,22 @@ func ApplyJob(c *gin.Context) {
 		})
 		return
 	}
+
+	var existingApplication model.TrApplication
+	if err := db.Where("job_id = ? AND talent_id = ?", req.JobID, req.TalentID).First(&existingApplication).Error; err == nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			StatusCode: http.StatusBadRequest,
+			Message:    "You have already applied for this job",
+		})
+		return
+	}
+
 	application := model.TrApplication{
 		AppID:    uuid.New(),
 		TalentID: req.TalentID,
 		JobID:    req.JobID,
 		Status:   "New",
 	}
-	db := database.GlobalDB
 
 	if err := db.Create(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
@@ -140,5 +156,40 @@ func ApplyJob(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.BaseResponseDTO{
 		StatusCode: http.StatusCreated,
 		Message:    "Job applied successfully",
+	})
+}
+
+func GetAllJobsPostedBySME(c *gin.Context) {
+	smeID := c.Query("sme_id")
+	if smeID == "" {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "SMEID is required",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	var jobs []model.Job
+	if err := database.GlobalDB.Where("sme_id = ?", smeID).Find(&jobs).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "There are no jobs right now",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to retrieve jobs: " + err.Error(),
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetAllJobResponseDTO{
+		Jobs: jobs,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
 	})
 }

@@ -18,4 +18,6 @@ func AuthUserRoutes(public *gin.RouterGroup) {
 func UserRoutes(private *gin.RouterGroup) {
 	private.GET("/get-all-talent", helper.GetAllTalents)
 	private.POST("/get-all-talent-by-appid", helper.GetAllTalentByAppID)
+	private.GET("/get-sme-detail", helper.GetSMEDetail)
+	private.GET("/get-talent-detail", helper.GetTalentDetail)
 }

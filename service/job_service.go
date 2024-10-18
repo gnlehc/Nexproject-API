@@ -10,4 +10,5 @@ func JobRoutes(private *gin.RouterGroup) {
 	private.POST("/post-a-job", helper.PostJob)
 	private.GET("/get-all-job", helper.GetAllJobs)
 	private.POST("/apply-job", helper.ApplyJob)
+	private.POST("/get-job-posted", helper.GetAllJobsPostedBySME)
 }
