@@ -22,6 +22,7 @@ func SetupRoutes(router *gin.Engine) {
 			PortofolioRoute(private)
 			JobRoutes(private)
 			UserRoutes(private)
+			SkillsRoute(private)
 		}
 	}
 

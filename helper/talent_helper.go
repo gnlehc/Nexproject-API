@@ -224,3 +224,66 @@ func GetTalentDetail(c *gin.Context) {
 		},
 	})
 }
+
+func EditTalentDetail(c *gin.Context) {
+	db := database.GlobalDB
+	talentID := c.Query("talent_id")
+	if talentID == "" {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Talent_ID is required",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	var talent model.Talent
+	if err := db.Where("talent_id", talentID).Find(&talent).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to get Talent Detail",
+		})
+		return
+	}
+
+	var req request.EditTalentRequestDTO
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Invalid Request",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	if req.FullName != "" {
+		talent.FullName = req.FullName
+	}
+	if req.PhoneNumber != "" {
+		talent.PhoneNumber = req.PhoneNumber
+	}
+	if req.Email != "" {
+		talent.Email = req.Email
+	}
+	if req.Bio != "" {
+		talent.Bio = req.Bio
+	}
+	if req.Location != "" {
+		talent.Location = req.Location
+	}
+
+	if err := db.Save(&talent).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to update Talent Detail",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.EditTalentDetailResponseDTO{
+		Data: talent,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}

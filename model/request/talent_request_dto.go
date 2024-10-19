@@ -17,3 +17,12 @@ type TalentRegisterRequestDTO struct {
 type GetAllTalentByAppIDRequestDTO struct {
 	AppID uuid.UUID `json:"app_id"`
 }
+
+type EditTalentRequestDTO struct {
+	Email       string
+	FullName    string
+	PhoneNumber string
+	Bio         string
+	Location    string
+	Skills      []string
+}
