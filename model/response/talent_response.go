@@ -27,3 +27,8 @@ type TalentDetailResponseDTO struct {
 	Data         model.Talent
 	BaseResponse BaseResponseDTO
 }
+
+type EditTalentDetailResponseDTO struct {
+	Data         model.Talent
+	BaseResponse BaseResponseDTO
+}
