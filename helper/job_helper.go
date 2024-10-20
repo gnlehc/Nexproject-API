@@ -2,6 +2,7 @@ package helper
 
 import (
 	"errors"
+	"fmt"
 	"loom/database"
 	"loom/model"
 	"loom/model/request"
@@ -194,3 +195,38 @@ func GetAllJobsPostedBySME(c *gin.Context) {
 	})
 }
 
+func GetJobByID(c *gin.Context) {
+	jobID := c.Param("job_id")
+	fmt.Println("Job ID:", jobID)
+	if jobID == "" {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Job ID is required",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	var job model.Job
+	if err := database.GlobalDB.Where("job_id = ?", jobID).First(&job).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "Job not found",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to retrieve job: " + err.Error(),
+			})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetJobResponseDTO{
+		Data: job,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}
