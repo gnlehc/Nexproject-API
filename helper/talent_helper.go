@@ -270,6 +270,9 @@ func EditTalentDetail(c *gin.Context) {
 	if req.Location != "" {
 		talent.Location = req.Location
 	}
+	if req.CV != "" {
+		talent.CV = req.CV
+	}
 
 	if err := db.Save(&talent).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
