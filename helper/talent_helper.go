@@ -357,9 +357,45 @@ func GetTalentSkills(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, res)
 		return
 	}
+
+	type TalentSkill struct {
+		TalentID uuid.UUID `gorm:"column:talent_talent_id"`
+		SkillID  uuid.UUID `gorm:"column:skill_skill_id"`
+	}
+
+	var talentSkills []TalentSkill
+	if err := database.GlobalDB.Table("talent_skills").
+		Where("talent_talent_id = ?", req.TalentID).
+		Find(&talentSkills).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to retrieve talent skills",
+		})
+		return
+	}
+
+	if len(talentSkills) == 0 {
+		c.JSON(http.StatusOK, response.GetTalentSkillsResponseDTO{
+			Skills: []model.Skill{},
+			BaseResponse: response.BaseResponseDTO{
+				StatusCode: http.StatusOK,
+				Message:    "No skills found for this talent",
+			},
+		})
+		return
+	}
+
+	var skillIDs []uuid.UUID
+	for _, ts := range talentSkills {
+		skillIDs = append(skillIDs, ts.SkillID)
+	}
+
 	var skills []model.Skill
-	if err := database.GlobalDB.Where("talent_id = ?", req.TalentID).Find(&skills).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve skills"})
+	if err := database.GlobalDB.Where("skill_id IN (?)", skillIDs).Find(&skills).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to retrieve skills",
+		})
 		return
 	}
 
