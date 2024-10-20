@@ -8,4 +8,6 @@ import (
 
 func SkillsRoute(private *gin.RouterGroup) {
 	private.GET("/get-all-skills", helper.GetAllSkills)
+	private.GET("/jobs/:job_id/skills", helper.GetAllSkillsByJobID)
+
 }
