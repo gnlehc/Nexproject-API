@@ -109,3 +109,57 @@ func GetTalentPortofolio(c *gin.Context) {
 		},
 	})
 }
+
+func GetPortfolioByTalentID(c *gin.Context) {
+    db := database.GlobalDB
+    talentID := c.Query("talent_id")  
+
+    if talentID == "" {
+        c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+            StatusCode: http.StatusBadRequest,
+            Message:    "Talent ID is required",
+        })
+        return
+    }
+
+    var talent model.Talent
+    if err := db.First(&talent, "talent_id = ?", talentID).Error; err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+                StatusCode: http.StatusNotFound,
+                Message:    "Talent not found",
+            })
+        } else {
+            c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+                StatusCode: http.StatusInternalServerError,
+                Message:    "Failed to retrieve talent: " + err.Error(),
+            })
+        }
+        return
+    }
+
+    var portfolios []model.Portofolio
+    if err := db.Where("talent_id = ?", talentID).Find(&portfolios).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+            StatusCode: http.StatusInternalServerError,
+            Message:    "Failed to retrieve portfolios",
+        })
+        return
+    }
+
+    if len(portfolios) == 0 {
+        c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+            StatusCode: http.StatusNotFound,
+            Message:    "No portfolios found for this talent",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, response.TalentPortfolioResponseDTO{
+        Data: portfolios,
+        BaseResponse: response.BaseResponseDTO{
+            StatusCode: http.StatusOK,
+            Message:    "Success",
+        },
+    })
+}
