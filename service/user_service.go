@@ -23,5 +23,8 @@ func UserRoutes(private *gin.RouterGroup) {
 	private.GET("/get-sme-detail", helper.GetSMEDetail)
 	private.GET("/get-talent-detail", helper.GetTalentDetail)
 	private.GET("/get-user-role", helper.DetermineUserRoleByJWT)
+	private.POST("/get-all-applicants-on-a-job", helper.GetAllApplicantsByJobID)
+
 	private.POST("/edit-talent", helper.EditTalentDetail)
+	private.POST("/edit-sme", helper.EditSMEDetails)
 }
