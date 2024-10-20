@@ -404,3 +404,49 @@ func AddTalentSkills(c *gin.Context) {
 		Message:    "Success",
 	})
 }
+
+func SaveJob(c *gin.Context) {
+	db := database.GlobalDB
+	var req request.SaveJobRequestDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		res := response.BaseResponseDTO{StatusCode: http.StatusBadRequest, Message: "Invalid Request"}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	var talent model.Talent
+	if err := db.Where("talent_id = ?", req.TalentID).First(&talent).Error; err != nil {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			StatusCode: http.StatusNotFound,
+			Message:    "Talent not found",
+		})
+		return
+	}
+
+	var job model.Job
+	if err := db.Where("job_id = ?", req.JobID).First(&job).Error; err != nil {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			StatusCode: http.StatusNotFound,
+			Message:    "Job not found",
+		})
+		return
+	}
+
+	savedJob := model.SavedJobs{
+		TalentID: req.TalentID,
+		JobID:    req.JobID,
+	}
+
+	if err := db.Create(&savedJob).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Error in save job",
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, response.BaseResponseDTO{
+		StatusCode: http.StatusCreated,
+		Message:    "Success",
+	})
+}

@@ -26,6 +26,7 @@ func UserRoutes(private *gin.RouterGroup) {
 	private.POST("/get-all-applicants-on-a-job", helper.GetAllApplicantsByJobID)
 	private.POST("/get-talent-skills", helper.GetTalentSkills)
 	private.POST("/add-talent-skills", helper.AddTalentSkills)
+	private.POST("/save-job", helper.SaveJob)
 
 	private.POST("/edit-talent", helper.EditTalentDetail)
 	private.POST("/edit-sme", helper.EditSMEDetails)

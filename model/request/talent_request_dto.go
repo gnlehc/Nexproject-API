@@ -43,3 +43,8 @@ type AddTalentSkillsRequestDTO struct {
 	TalentID uuid.UUID   `json:"talent_id"`
 	Skills   []uuid.UUID `json:"skills"`
 }
+
+type SaveJobRequestDTO struct {
+	TalentID uuid.UUID `json:"talent_id"`
+	JobID    uuid.UUID `json:"job_id"`
+}

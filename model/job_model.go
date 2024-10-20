@@ -7,7 +7,7 @@ import (
 )
 
 type Job struct {
-	JobID uuid.UUID `json:"JobID" gorm:"primaryKey;autoIncrement:true;not null"`
+	JobID uuid.UUID `json:"JobID" gorm:"type:uuid;primaryKey;not null"`
 	// ForeignKey
 	SMEID uuid.UUID `json:"SMEID"`
 	// SME            SME       `json:"SME" gorm:"foreignKey:SMEID"`

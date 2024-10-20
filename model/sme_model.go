@@ -3,7 +3,7 @@ package model
 import "github.com/google/uuid"
 
 type SME struct {
-	SMEID              uuid.UUID `json:"SMEID" gorm:"primaryKey;autoIncrement:true;not null"`
+	SMEID              uuid.UUID `json:"SMEID" gorm:"type:uuid;primaryKey;not null"`
 	Email              string    `json:"Email"`
 	Password           string    `json:"Password"`
 	CompanyName        string    `json:"CompanyName"`
