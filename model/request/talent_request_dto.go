@@ -1,6 +1,8 @@
 package request
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type TalentLoginRequestDTO struct {
 	Email    string
@@ -31,4 +33,13 @@ type EditTalentRequestDTO struct {
 type GetAllTalentByAppAndJobIDRequestDTO struct {
 	AppID uuid.UUID `json:"app_id"`
 	JobID uuid.UUID `json:"job_id"`
+}
+
+type GetTalentSkillsRequestDTO struct {
+	TalentID uuid.UUID `json:"talent_id"`
+}
+
+type AddTalentSkillsRequestDTO struct {
+	TalentID uuid.UUID   `json:"talent_id"`
+	Skills   []uuid.UUID `json:"skills"`
 }

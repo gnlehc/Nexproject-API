@@ -349,3 +349,58 @@ func GetAllApplicantsByJobID(c *gin.Context) {
 		},
 	})
 }
+
+func GetTalentSkills(c *gin.Context) {
+	var req request.GetTalentSkillsRequestDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		res := response.BaseResponseDTO{StatusCode: http.StatusBadRequest, Message: "Invalid Request"}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+	var skills []model.Skill
+	if err := database.GlobalDB.Where("talent_id = ?", req.TalentID).Find(&skills).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve skills"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetTalentSkillsResponseDTO{
+		Skills: skills,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}
+
+func AddTalentSkills(c *gin.Context) {
+	var req request.AddTalentSkillsRequestDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		res := response.BaseResponseDTO{StatusCode: http.StatusBadRequest, Message: "Invalid Request"}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	for _, skillID := range req.Skills {
+		var skill model.Skill
+		if err := database.GlobalDB.First(&skill, "skill_id = ?", skillID).Error; err != nil {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "Skill not found",
+			})
+			return
+		}
+
+		if err := database.GlobalDB.Model(&model.Talent{TalentID: req.TalentID}).Association("Skills").Append(&skill); err != nil {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to associate skill with talent",
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusCreated, response.BaseResponseDTO{
+		StatusCode: http.StatusCreated,
+		Message:    "Success",
+	})
+}
