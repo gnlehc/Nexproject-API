@@ -55,6 +55,40 @@ func GetAllAppIDByJobID(c *gin.Context) {
 		},
 	})
 }
+func GetAllAppIDByTalentID(c *gin.Context) {
+	db := database.GlobalDB
+	var req request.GetAllAppIDByTalentIDRequestDTO
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Invalid request body",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	var applications []model.TrApplication
+	if err := db.Where("talent_id = ?", req.TalentID).Find(&applications).Error; err != nil {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			Message:    "Applications not found",
+			StatusCode: http.StatusNotFound,
+		})
+		return
+	}
+
+	var appIDs []uuid.UUID
+	for _, app := range applications {
+		appIDs = append(appIDs, app.AppID)
+	}
+
+	c.JSON(http.StatusOK, response.GetAllApplicationByJobIDResponseDTO{
+		ListAppID: appIDs,
+		BaseResponse: response.BaseResponseDTO{
+			Message:    "Success",
+			StatusCode: http.StatusOK,
+		},
+	})
+}
 
 func UpdateApplicationStatus(c *gin.Context) {
 	db := database.GlobalDB
