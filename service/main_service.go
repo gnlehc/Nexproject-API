@@ -5,9 +5,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func SetupRoutes(router *gin.Engine) {
+func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	api := router.Group("/api")
 	{
 		public := api.Group("/public")
@@ -23,6 +24,7 @@ func SetupRoutes(router *gin.Engine) {
 			JobRoutes(private)
 			UserRoutes(private)
 			SkillsRoute(private)
+			MessageRoutes(private, db)
 		}
 	}
 

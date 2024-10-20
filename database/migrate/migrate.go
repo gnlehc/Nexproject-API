@@ -62,6 +62,11 @@ func DBMigrate(db *gorm.DB) error {
 			return err
 		}
 	}
+	if !migrator.HasTable(&model.Message{}) {
+		if err := db.AutoMigrate(&model.Message{}); err != nil {
+			return err
+		}
+	}
 
 	// Seed dummy data
 	if err := seedTalentData(db); err != nil {
