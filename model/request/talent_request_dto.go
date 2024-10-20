@@ -27,3 +27,8 @@ type EditTalentRequestDTO struct {
 	Location    string
 	Skills      []string
 }
+
+type GetAllTalentByAppAndJobIDRequestDTO struct {
+	AppID uuid.UUID `json:"app_id"`
+	JobID uuid.UUID `json:"job_id"`
+}

@@ -290,3 +290,62 @@ func EditTalentDetail(c *gin.Context) {
 		},
 	})
 }
+
+func GetAllApplicantsByJobID(c *gin.Context) {
+	role, err := GetUserRole(c)
+	if err != nil || strings.TrimSpace(strings.ToLower(role)) != "sme" {
+		c.JSON(http.StatusForbidden, response.BaseResponseDTO{
+			Message:    "Unauthorized",
+			StatusCode: http.StatusForbidden,
+		})
+		return
+	}
+
+	var requestBody request.GetAllTalentByAppAndJobIDRequestDTO
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		res := response.BaseResponseDTO{StatusCode: http.StatusBadRequest, Message: "Invalid Request"}
+		c.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	var application model.TrApplication
+	if err := database.GlobalDB.Where("app_id = ? AND job_id = ?", requestBody.AppID, requestBody.JobID).First(&application).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "Application not found",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to check application: " + err.Error(),
+			})
+		}
+		return
+	}
+
+	var talents []model.Talent
+	if err := database.GlobalDB.Where("talent_id IN (?)", application.TalentID).Find(&talents).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to retrieve Talents: " + err.Error(),
+		})
+		return
+	}
+
+	if len(talents) == 0 {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			StatusCode: http.StatusNotFound,
+			Message:    "No Talent found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetAllTalentResponseDTO{
+		Talents: talents,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+	})
+}

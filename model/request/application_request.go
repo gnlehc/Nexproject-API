@@ -9,3 +9,7 @@ type UpdateApplicationStatusRequestDTO struct {
 	TalentID uuid.UUID
 	StatusID int
 }
+
+type GetAllAppIDByJobIDRequestDTO struct {
+	JobID uuid.UUID `json:"job_id"`
+}

@@ -2,11 +2,13 @@ package helper
 
 import (
 	"errors"
+	"log"
 	"loom/database"
 	"loom/model"
 	"loom/model/request"
 	"loom/model/response"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -131,5 +133,65 @@ func GetSMEDetail(c *gin.Context) {
 			StatusCode: http.StatusOK,
 			Message:    "Success",
 		},
+	})
+}
+
+func EditSMEDetails(c *gin.Context) {
+	db := database.GlobalDB
+	var req request.EditSMERequestDTO
+
+	role, err := GetUserRole(c)
+	if err != nil || strings.ToLower(role) != "sme" {
+		c.JSON(http.StatusForbidden, response.BaseResponseDTO{
+			Message:    "Unauthorized",
+			StatusCode: http.StatusForbidden,
+		})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Invalid request body",
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	var sme model.SME
+	if err := db.First(&sme, req.SMEID).Error; err != nil {
+		c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+			Message:    "SME not found",
+			StatusCode: http.StatusNotFound,
+		})
+		return
+	}
+	hashedPassword, err := HashPassword(req.Password)
+	if err != nil {
+		log.Printf("Error hashing password for %s: %v\n", req.Password, err)
+	}
+	sme.Email = req.Email
+	if req.Password != "" {
+		sme.Password = hashedPassword
+	}
+
+	sme.CompanyName = req.CompanyName
+	sme.CompanyDescription = req.CompanyDescription
+	sme.CEO = req.CEO
+	sme.Social = req.Social
+	sme.PhoneNumber = req.PhoneNumber
+	sme.ActiveStatus = req.ActiveStatus
+	sme.SMETypeID = req.SMETypeID
+
+	if err := db.Save(&sme).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			Message:    "Failed to update SME: " + err.Error(),
+			StatusCode: http.StatusInternalServerError,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.BaseResponseDTO{
+		Message:    "SME updated successfully",
+		StatusCode: http.StatusOK,
 	})
 }
