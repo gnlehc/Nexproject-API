@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"loom/database"
 	"loom/model"
 	"loom/model/request"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func AddPortofolio(c *gin.Context) {
@@ -61,5 +63,49 @@ func AddPortofolio(c *gin.Context) {
 	c.JSON(http.StatusOK, response.BaseResponseDTO{
 		StatusCode: http.StatusOK,
 		Message:    "Portfolio Added Successfully",
+	})
+}
+
+func GetTalentPortofolio(c *gin.Context) {
+	db := database.GlobalDB
+	claims, _ := c.Get("claims")
+	JWTClaims := claims.(*JWTClaims)
+	talentID := JWTClaims.UserID
+
+	var talent model.Talent
+	if err := db.First(&talent, "talent_id = ?", talentID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Talent not found"})
+		return
+	}
+
+	var portfolios []model.Portofolio
+	if err := db.Where("talent_id = ?", talentID).First(&talent).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "Talent not found",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to check Talent: " + err.Error(),
+			})
+		}
+		return
+	}
+	if err := db.Where("talent_id = ?", talentID).Find(&portfolios).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to get Talent Portfolios",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.TalentPortfolioResponseDTO{
+		Data: portfolios,
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
 	})
 }
