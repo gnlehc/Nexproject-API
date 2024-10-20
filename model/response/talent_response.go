@@ -32,3 +32,8 @@ type EditTalentDetailResponseDTO struct {
 	Data         model.Talent
 	BaseResponse BaseResponseDTO
 }
+
+type TalentPortfolioResponseDTO struct {
+	Data         []model.Portofolio
+	BaseResponse BaseResponseDTO
+}
