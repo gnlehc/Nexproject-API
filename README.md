@@ -1,6 +1,8 @@
+![loom_logo](https://github.com/user-attachments/assets/6f01ed33-778b-4b45-a359-e28fc7d29866)
+
 # Loom API
 Loom is a platform dedicated to advancing Sustainable Development Goal 8 (SDG 8) by supporting inclusive economic growth and promoting decent work for all. Designed for Small and Medium Enterprises (SMEs)
-![loom_logo](https://github.com/user-attachments/assets/6f01ed33-778b-4b45-a359-e28fc7d29866)
+
 ## About SDG 8
 **SDG 8** is a global initiative that aims to promote sustained, inclusive, and sustainable economic growth, full and productive employment, and decent work for all. By facilitating job creation and connecting SMEs with diverse talent, Loom contributes to a fairer job market where economic opportunities are accessible to everyone.
 
@@ -27,7 +29,6 @@ Loom is a platform dedicated to advancing Sustainable Development Goal 8 (SDG 8)
    - Create a `.env` file in the project root directory.
    - Add your Loom API Key, database connection details, and any other necessary configurations.
    ```dotenv
-   LOOM_API_KEY=your_api_key_here
    DB_HOST=localhost
    DB_PORT=5432
    DB_USER=your_db_user
