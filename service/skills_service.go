@@ -1,7 +1,7 @@
 package service
 
 import (
-	"loom/helper"
+	"nexproject/helper"
 
 	"github.com/gin-gonic/gin"
 )

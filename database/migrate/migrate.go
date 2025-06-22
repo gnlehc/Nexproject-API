@@ -2,8 +2,9 @@ package migrate
 
 import (
 	"log"
-	"loom/helper"
-	"loom/model"
+	"nexproject/helper"
+	"nexproject/model"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -62,8 +63,8 @@ func DBMigrate(db *gorm.DB) error {
 			return err
 		}
 	}
-	if !migrator.HasTable(&model.Message{}) {
-		if err := db.AutoMigrate(&model.Message{}); err != nil {
+	if !migrator.HasTable(&model.Project{}) {
+		if err := db.AutoMigrate(&model.Project{}); err != nil {
 			return err
 		}
 	}
@@ -84,7 +85,9 @@ func DBMigrate(db *gorm.DB) error {
 	if err := seedApplicationStatusData(db); err != nil {
 		return err
 	}
-
+	if err := seedProjectData(db); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -304,5 +307,61 @@ func seedApplicationStatusData(db *gorm.DB) error {
 			}
 		}
 	}
+	return nil
+}
+
+func seedProjectData(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&model.Project{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count == 0 {
+		var sme model.SME
+		if err := db.First(&sme).Error; err != nil {
+			return err
+		}
+
+		project := model.Project{
+			ProjectID:          uuid.New(),
+			ProjectName:        "NextGen Commerce Platform",
+			ProjectDescription: "A modern e-commerce platform with integrated payment.",
+			SMEID:              sme.SMEID,
+			Jobs: []model.Job{
+				{
+					JobID:          uuid.New(),
+					JobTitle:       "Backend Engineer",
+					JobDescription: "Develop microservices in Go.",
+					JobType:        "Full-time",
+					Qualification:  "3+ years backend development",
+					JobArrangement: "Remote",
+					Wage:           "IDR 15.000.000/month",
+					Active:         true,
+					CreatedAt:      time.Now(),
+					Location:       "Jakarta",
+				},
+				{
+					JobID:          uuid.New(),
+					JobTitle:       "Product Manager",
+					JobDescription: "Lead product development lifecycle.",
+					JobType:        "Contract",
+					Qualification:  "Experience in managing agile teams",
+					JobArrangement: "Hybrid",
+					Wage:           "IDR 20.000.000/month",
+					Active:         true,
+					CreatedAt:      time.Now(),
+					Location:       "Bandung",
+				},
+			},
+		}
+
+		if err := db.Create(&project).Error; err != nil {
+			log.Printf("Error seeding project: %v\n", err)
+			return err
+		}
+
+		log.Println("Successfully seeded Project with Jobs.")
+	}
+
 	return nil
 }

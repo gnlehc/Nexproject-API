@@ -1,8 +1,8 @@
 package service
 
 import (
-	"loom/middleware"
 	"net/http"
+	"nexproject/middleware"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -24,14 +24,14 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			JobRoutes(private)
 			UserRoutes(private)
 			SkillsRoute(private)
-			MessageRoutes(private, db)
 			ApplicationRoutes(private)
+			ProjectRoutes(private)
 		}
 	}
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "Welcome to Loom API by BNCC Magnolia",
+			"message": "Welcome to Nexproject API by BNCC Magnolia",
 		})
 	})
 }

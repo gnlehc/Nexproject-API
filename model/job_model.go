@@ -7,10 +7,7 @@ import (
 )
 
 type Job struct {
-	JobID uuid.UUID `json:"JobID" gorm:"type:uuid;primaryKey;not null"`
-	// ForeignKey
-	SMEID uuid.UUID `json:"SMEID"`
-	// SME            SME       `json:"SME" gorm:"foreignKey:SMEID"`
+	JobID          uuid.UUID `json:"JobID" gorm:"type:uuid;primaryKey;not null"`
 	JobTitle       string    `json:"JobTitle"`
 	JobDescription string    `json:"JobDescription"`
 	JobType        string    `json:"JobType"`
@@ -21,4 +18,7 @@ type Job struct {
 	CreatedAt      time.Time `json:"CreatedAt"`
 	Location       string    `json:"Location"`
 	Skills         []Skill   `json:"Skills" gorm:"many2many:job_skills"`
+
+	// ForeignKey
+	ProjectID uuid.UUID `json:"ProjectID" gorm:"type:uuid;not null"`
 }

@@ -1,6 +1,6 @@
 package response
 
-import "loom/model"
+import "nexproject/model"
 
 type GetAllSkillResponseDTO struct {
 	Skills       []model.Skill   `json:"Skills"`

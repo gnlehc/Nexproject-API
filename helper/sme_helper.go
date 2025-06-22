@@ -3,11 +3,11 @@ package helper
 import (
 	"errors"
 	"log"
-	"loom/database"
-	"loom/model"
-	"loom/model/request"
-	"loom/model/response"
 	"net/http"
+	"nexproject/database"
+	"nexproject/model"
+	"nexproject/model/request"
+	"nexproject/model/response"
 	"strings"
 
 	"github.com/gin-gonic/gin"

@@ -1,7 +1,7 @@
 package request
 
 import (
-	"loom/model"
+	"nexproject/model"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,10 +19,12 @@ type JobRequestDTO struct {
 	CreatedAt      time.Time
 	Location       string
 	Skills         []model.Skill
+	ProjectID      uuid.UUID
 }
 
 type ApplyJobRequest struct {
-	TalentID uuid.UUID
-	JobID    uuid.UUID
-	Status   string
+	TalentID  uuid.UUID
+	ProjectID uuid.UUID
+	JobID     uuid.UUID
+	Status    string
 }

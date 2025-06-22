@@ -1,7 +1,7 @@
 package response
 
 import (
-	"loom/model"
+	"nexproject/model"
 
 	"github.com/google/uuid"
 )

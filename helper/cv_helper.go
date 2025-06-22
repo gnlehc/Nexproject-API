@@ -1,10 +1,10 @@
 package helper
 
 import (
-	"loom/database"
-	"loom/model"
-	"loom/model/response"
 	"net/http"
+	"nexproject/database"
+	"nexproject/model"
+	"nexproject/model/response"
 
 	"github.com/gin-gonic/gin"
 )

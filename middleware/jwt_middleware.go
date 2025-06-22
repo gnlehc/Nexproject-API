@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"loom/helper"
-	"loom/model/response"
 	"net/http"
+	"nexproject/helper"
+	"nexproject/model/response"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

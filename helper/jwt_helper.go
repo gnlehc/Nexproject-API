@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var SecretKey = []byte("loom_api_secret_key")
+var SecretKey = []byte("nexproject_api_secret_key")
 
 type JWTClaims struct {
 	UserID uuid.UUID `json:"user_id"`

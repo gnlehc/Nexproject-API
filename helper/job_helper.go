@@ -3,11 +3,11 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"loom/database"
-	"loom/model"
-	"loom/model/request"
-	"loom/model/response"
 	"net/http"
+	"nexproject/database"
+	"nexproject/model"
+	"nexproject/model/request"
+	"nexproject/model/response"
 	"strings"
 	"time"
 
@@ -53,8 +53,8 @@ func PostJob(c *gin.Context) {
 		})
 		return
 	}
-	var jobRequest request.JobRequestDTO
 
+	var jobRequest request.JobRequestDTO
 	if err := c.ShouldBindJSON(&jobRequest); err != nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
 			Message:    err.Error(),
@@ -62,9 +62,11 @@ func PostJob(c *gin.Context) {
 		})
 		return
 	}
-	// Check if SME exists
+
+	db := database.GlobalDB
+
 	var sme model.SME
-	if err := database.GlobalDB.First(&sme, jobRequest.SMEID).Error; err != nil {
+	if err := db.First(&sme, "sme_id = ?", jobRequest.SMEID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
 			Message:    "Invalid SME ID: " + err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -72,9 +74,18 @@ func PostJob(c *gin.Context) {
 		return
 	}
 
+	var project model.Project
+	if err := db.Where("project_id = ? AND sme_id = ?", jobRequest.ProjectID, jobRequest.SMEID).First(&project).Error; err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			Message:    "Invalid Project ID for this SME: " + err.Error(),
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
 	job := model.Job{
 		JobID:          uuid.New(),
-		SMEID:          jobRequest.SMEID,
+		ProjectID:      jobRequest.ProjectID,
 		JobTitle:       jobRequest.JobTitle,
 		JobDescription: jobRequest.JobDescription,
 		JobType:        jobRequest.JobType,
@@ -82,11 +93,9 @@ func PostJob(c *gin.Context) {
 		JobArrangement: jobRequest.JobArrangement,
 		Wage:           jobRequest.Wage,
 		Active:         jobRequest.Active,
-		CreatedAt:      time.Now(),
 		Location:       jobRequest.Location,
+		CreatedAt:      time.Now(),
 	}
-
-	db := database.GlobalDB
 
 	if err := db.Create(&job).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
@@ -96,14 +105,15 @@ func PostJob(c *gin.Context) {
 		return
 	}
 
-	job.Skills = append(job.Skills, jobRequest.Skills...)
-
-	if err := db.Save(&job).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
-			Message:    "Unable to associate skills with job: " + err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		})
-		return
+	if len(jobRequest.Skills) > 0 {
+		job.Skills = append(job.Skills, jobRequest.Skills...)
+		if err := db.Save(&job).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				Message:    "Unable to associate skills with job: " + err.Error(),
+				StatusCode: http.StatusInternalServerError,
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, response.BaseResponseDTO{
@@ -122,12 +132,29 @@ func ApplyJob(c *gin.Context) {
 		})
 		return
 	}
+
 	var req request.ApplyJobRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})
+		return
+	}
+
+	var project model.Project
+	if err := db.Where("project_id = ?", req.ProjectID).First(&project).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, response.BaseResponseDTO{
+				StatusCode: http.StatusNotFound,
+				Message:    "The project you're applying to does not exist",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Database error: " + err.Error(),
+			})
+		}
 		return
 	}
 
@@ -146,14 +173,14 @@ func ApplyJob(c *gin.Context) {
 		JobID:    req.JobID,
 		StatusID: 1,
 	}
-
 	if err := db.Create(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
-			Message:    "Unable to apply job: " + err.Error(),
+			Message:    "Unable to apply for job: " + err.Error(),
 			StatusCode: http.StatusInternalServerError,
 		})
 		return
 	}
+
 	c.JSON(http.StatusCreated, response.BaseResponseDTO{
 		StatusCode: http.StatusCreated,
 		Message:    "Job applied successfully",

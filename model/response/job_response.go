@@ -1,6 +1,6 @@
 package response
 
-import "loom/model"
+import "nexproject/model"
 
 type GetAllJobResponseDTO struct {
 	Jobs         []model.Job

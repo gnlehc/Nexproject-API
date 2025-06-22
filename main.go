@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"loom/database"
-	"loom/database/migrate"
-	"loom/service"
+	"nexproject/database"
+	"nexproject/database/migrate"
+	"nexproject/service"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
