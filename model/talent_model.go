@@ -10,13 +10,13 @@ type Talent struct {
 	Bio            string    `json:"Bio"`
 	PhoneNumber    string    `json:"PhoneNumber"`
 	ProfilePicture string    `json:"ProfilePicture"`
+	University     string    `json:"University"`
 	ActiveStatus   bool      `json:"ActiveStatus"`
+	AvgRating      float32   `json:"AvgRating"`
+	HireCount      int       `json:"HireCount"`
+	CV             string    `json:"CV"`
+	Location       string    `json:"Location"`
 	// Foreignkey
-	Skills    []Skill `json:"Skills" gorm:"many2many:talent_skills"`
-	AvgRating float32 `json:"AvgRating"`
-	HireCount int     `json:"HireCount"`
-	// Foreignkey
+	Skills     []Skill      `json:"Skills" gorm:"many2many:talent_skills"`
 	Portofolio []Portofolio `json:"Portofolio" gorm:"foreignKey:TalentID"`
-	CV         string       `json:"CV"`
-	Location   string       `json:"Location"`
 }

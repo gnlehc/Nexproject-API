@@ -24,6 +24,7 @@ type EditTalentRequestDTO struct {
 	Email       string
 	FullName    string
 	PhoneNumber string
+	University  string
 	CV          string
 	Bio         string
 	Location    string

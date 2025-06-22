@@ -273,6 +273,9 @@ func EditTalentDetail(c *gin.Context) {
 	if req.CV != "" {
 		talent.CV = req.CV
 	}
+	if req.University != "" {
+		talent.University = req.University
+	}
 
 	if err := db.Save(&talent).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
