@@ -23,7 +23,7 @@ func DetermineUserRoleByEmail(c *gin.Context) {
 	}
 	email := strings.ToLower(req.Email)
 
-	if err := database.GlobalDB.Where("Email = ?", email).First(&talent).Error; err == nil {
+	if err := database.GlobalDB.Where("LOWER(Email) = ?", strings.ToLower(email)).First(&talent).Error; err == nil {
 		res := response.UserRoleResponseDTO{
 			StatusCode: 200,
 			Message:    "User found",
@@ -33,7 +33,7 @@ func DetermineUserRoleByEmail(c *gin.Context) {
 		return
 	}
 
-	if err := database.GlobalDB.Where("Email = ?", email).First(&sme).Error; err == nil {
+	if err := database.GlobalDB.Where("LOWER(Email) = ?", strings.ToLower(email)).First(&sme).Error; err == nil {
 		res := response.UserRoleResponseDTO{
 			StatusCode: 200,
 			Message:    "User found",
