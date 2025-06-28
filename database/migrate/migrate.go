@@ -68,6 +68,11 @@ func DBMigrate(db *gorm.DB) error {
 			return err
 		}
 	}
+	if !migrator.HasTable(&model.Learning{}) {
+		if err := db.AutoMigrate(&model.Learning{}); err != nil {
+			return err
+		}
+	}
 
 	// Seed dummy data
 	if err := seedTalentData(db); err != nil {
@@ -86,6 +91,9 @@ func DBMigrate(db *gorm.DB) error {
 		return err
 	}
 	if err := seedProjectData(db); err != nil {
+		return err
+	}
+	if err := seedLearningData(db); err != nil {
 		return err
 	}
 	return nil
@@ -361,6 +369,48 @@ func seedProjectData(db *gorm.DB) error {
 		}
 
 		log.Println("Successfully seeded Project with Jobs.")
+	}
+
+	return nil
+}
+
+func seedLearningData(db *gorm.DB) error {
+	var count int64
+	if err := db.Model(&model.Learning{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count == 0 {
+		var skills []model.Skill
+		if err := db.Limit(5).Find(&skills).Error; err != nil {
+			return err
+		}
+
+		learnings := []model.Learning{
+			{
+				LearningID:    uuid.New(),
+				Title:         "Introduction to Digital Marketing",
+				Content:       "This learning module introduces basic digital marketing concepts.",
+				ImageCoverURL: "https://example.com/cover1.png",
+				Skills:        skills[:2],
+			},
+			{
+				LearningID:    uuid.New(),
+				Title:         "Basic Data Analysis",
+				Content:       "Learn about data cleaning, visualization, and interpretation.",
+				ImageCoverURL: "https://example.com/cover2.png",
+				Skills:        skills[2:5],
+			},
+		}
+
+		for _, learning := range learnings {
+			if err := db.Create(&learning).Error; err != nil {
+				log.Printf("Error seeding learning %s: %v", learning.Title, err)
+				return err
+			}
+		}
+
+		log.Println("Successfully seeded Learning data.")
 	}
 
 	return nil

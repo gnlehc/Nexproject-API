@@ -26,6 +26,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 			SkillsRoute(private)
 			ApplicationRoutes(private)
 			ProjectRoutes(private)
+			LearningRoutes(private)
 		}
 	}
 
