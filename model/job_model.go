@@ -17,8 +17,7 @@ type Job struct {
 	Active         bool      `json:"Active"`
 	CreatedAt      time.Time `json:"CreatedAt"`
 	Location       string    `json:"Location"`
-	Skills         []Skill   `json:"Skills" gorm:"many2many:job_skills"`
-
 	// ForeignKey
+	Skills    []Skill   `gorm:"many2many:job_skills"`
 	ProjectID uuid.UUID `json:"ProjectID" gorm:"type:uuid;not null"`
 }

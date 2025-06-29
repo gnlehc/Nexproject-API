@@ -1,6 +1,7 @@
 package migrate
 
 import (
+	"fmt"
 	"log"
 	"nexproject/helper"
 	"nexproject/model"
@@ -13,22 +14,11 @@ import (
 func DBMigrate(db *gorm.DB) error {
 	migrator := db.Migrator()
 	// Migrate table structure
-	if !migrator.HasTable(&model.SMEType{}) {
-		if err := db.AutoMigrate(&model.SMEType{}); err != nil {
-			return err
-		}
-	}
-	// log.Println("Checking if SME table exists...")
 	if !migrator.HasTable(&model.SME{}) {
-		// log.Println("SME table does not exist, migrating...")
 		if err := db.AutoMigrate(&model.SME{}); err != nil {
 			return err
 		}
-		// log.Println("Successfully migrated SME table.")
 	}
-	// else {
-	// 	log.Println("SME table already exists.")
-	// }
 
 	if !migrator.HasTable(&model.Skill{}) {
 		if err := db.AutoMigrate(&model.Skill{}); err != nil {
@@ -79,9 +69,6 @@ func DBMigrate(db *gorm.DB) error {
 		return err
 	}
 	if err := seedSMEData(db); err != nil {
-		return err
-	}
-	if err := SeedSMETypesData(db); err != nil {
 		return err
 	}
 	if err := SeedSkillsData(db); err != nil {
@@ -189,49 +176,7 @@ func seedSMEData(db *gorm.DB) error {
 
 	return nil
 }
-func SeedSMETypesData(db *gorm.DB) error {
-	smeTypes := []model.SMEType{
-		{SMETypeID: uuid.New(), SMETypeName: "Beauty, Skincare, Makeup", SMETypeDescription: "Products and services focused on personal grooming and aesthetics."},
-		{SMETypeID: uuid.New(), SMETypeName: "Health and Wellness", SMETypeDescription: "Promoting physical and mental well-being through various services and products."},
-		{SMETypeID: uuid.New(), SMETypeName: "Fashion and Apparel", SMETypeDescription: "Involves the design, production, and retail of clothing and accessories."},
-		{SMETypeID: uuid.New(), SMETypeName: "Home Decor", SMETypeDescription: "Specializes in furnishings and accessories for enhancing living spaces."},
-		{SMETypeID: uuid.New(), SMETypeName: "Fitness and Sports", SMETypeDescription: "Offers gym services, fitness classes, and sports equipment."},
-		{SMETypeID: uuid.New(), SMETypeName: "Food and Beverage", SMETypeDescription: "Includes restaurants, cafes, catering, and food products."},
-		{SMETypeID: uuid.New(), SMETypeName: "Technology and Gadgets", SMETypeDescription: "Selling electronic devices and tech-related services."},
-		{SMETypeID: uuid.New(), SMETypeName: "Travel and Hospitality", SMETypeDescription: "Focuses on travel agencies, hotels, and travel experiences."},
-		{SMETypeID: uuid.New(), SMETypeName: "Pet Care", SMETypeDescription: "Provides grooming, health products, and training for pets."},
-		{SMETypeID: uuid.New(), SMETypeName: "Education and E-Learning", SMETypeDescription: "Offers educational materials, online courses, and tutoring services."},
-		{SMETypeID: uuid.New(), SMETypeName: "Sustainable Products", SMETypeDescription: "Concentrates on eco-friendly products and practices."},
-		{SMETypeID: uuid.New(), SMETypeName: "Real Estate", SMETypeDescription: "Involves buying, selling, and managing properties."},
-		{SMETypeID: uuid.New(), SMETypeName: "Automotive", SMETypeDescription: "Focused on vehicle sales, maintenance, and accessories."},
-		{SMETypeID: uuid.New(), SMETypeName: "Financial Services", SMETypeDescription: "Includes banking, insurance, and investment services."},
-		{SMETypeID: uuid.New(), SMETypeName: "Event Planning", SMETypeDescription: "Organizing and coordinating events such as weddings and corporate functions."},
-		{SMETypeID: uuid.New(), SMETypeName: "Digital Marketing", SMETypeDescription: "Services focused on promoting businesses online through various strategies."},
-		{SMETypeID: uuid.New(), SMETypeName: "Arts and Crafts", SMETypeDescription: "Selling handmade goods, art, and craft supplies."},
-		{SMETypeID: uuid.New(), SMETypeName: "Consulting Services", SMETypeDescription: "Providing expert advice in various fields, such as business, finance, or IT."},
-		{SMETypeID: uuid.New(), SMETypeName: "Online Retail", SMETypeDescription: "E-commerce businesses selling products through online platforms."},
-		{SMETypeID: uuid.New(), SMETypeName: "Landscaping and Gardening", SMETypeDescription: "Services related to gardening, landscaping design, and maintenance."},
-	}
 
-	var count int64
-	if err := db.Model(&model.SMEType{}).Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count == 0 {
-		for _, smeType := range smeTypes {
-			if err := db.Create(&smeType).Error; err != nil {
-				log.Printf("Error seeding SME type %s: %v\n", smeType.SMETypeName, err)
-				return err
-			}
-		}
-		log.Println("Successfully seeded SME types.")
-	} else {
-		log.Println("SME types already exist, skipping seeding.")
-	}
-
-	return nil
-}
 func SeedSkillsData(db *gorm.DB) error {
 	skills := []model.Skill{
 		{SkillID: uuid.New(), SkillName: "Business Management"},
@@ -330,45 +275,89 @@ func seedProjectData(db *gorm.DB) error {
 			return err
 		}
 
+		tx := db.Begin()
+
+		projectID := uuid.New()
 		project := model.Project{
-			ProjectID:          uuid.New(),
+			ProjectID:          projectID,
 			ProjectName:        "NextGen Commerce Platform",
 			ProjectDescription: "A modern e-commerce platform with integrated payment.",
 			SMEID:              sme.SMEID,
-			Jobs: []model.Job{
-				{
-					JobID:          uuid.New(),
-					JobTitle:       "Backend Engineer",
-					JobDescription: "Develop microservices in Go.",
-					JobType:        "Full-time",
-					Qualification:  "3+ years backend development",
-					JobArrangement: "Remote",
-					Wage:           "IDR 15.000.000/month",
-					Active:         true,
-					CreatedAt:      time.Now(),
-					Location:       "Jakarta",
-				},
-				{
-					JobID:          uuid.New(),
-					JobTitle:       "Product Manager",
-					JobDescription: "Lead product development lifecycle.",
-					JobType:        "Contract",
-					Qualification:  "Experience in managing agile teams",
-					JobArrangement: "Hybrid",
-					Wage:           "IDR 20.000.000/month",
-					Active:         true,
-					CreatedAt:      time.Now(),
-					Location:       "Bandung",
-				},
-			},
 		}
 
-		if err := db.Create(&project).Error; err != nil {
-			log.Printf("Error seeding project: %v\n", err)
+		if err := tx.Create(&project).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
 
-		log.Println("Successfully seeded Project with Jobs.")
+		jobsData := []struct {
+			Title       string
+			Description string
+			Type        string
+			Qualif      string
+			Arrangement string
+			Wage        string
+			Active      bool
+			Location    string
+			Skills      []string
+		}{
+			{
+				"Backend Engineer", "Develop microservices in Go.", "Full-time",
+				"3+ years backend development", "Remote", "IDR 15.000.000/month", true, "Jakarta",
+				[]string{"Spring Boot", "Golang", "Rust"},
+			},
+			{
+				"Product Manager", "Lead product development lifecycle.", "Contract",
+				"Experience in managing agile teams", "Hybrid", "IDR 20.000.000/month", true, "Bandung",
+				[]string{"Excel", "PPT", "Power BI"},
+			},
+		}
+
+		for _, j := range jobsData {
+			var skillModels []model.Skill
+
+			for _, skillName := range j.Skills {
+				var skill model.Skill
+				if err := db.Where("skill_name = ?", skillName).First(&skill).Error; err != nil {
+					// skill belum ada → buat baru
+					skill = model.Skill{
+						SkillID:   uuid.New(),
+						SkillName: skillName,
+					}
+					if err := tx.Create(&skill).Error; err != nil {
+						tx.Rollback()
+						return fmt.Errorf("failed creating skill: %w", err)
+					}
+				}
+				skillModels = append(skillModels, skill)
+			}
+
+			job := model.Job{
+				JobID:          uuid.New(),
+				ProjectID:      projectID,
+				JobTitle:       j.Title,
+				JobDescription: j.Description,
+				JobType:        j.Type,
+				Qualification:  j.Qualif,
+				JobArrangement: j.Arrangement,
+				Wage:           j.Wage,
+				Active:         j.Active,
+				CreatedAt:      time.Now(),
+				Location:       j.Location,
+				Skills:         skillModels,
+			}
+
+			if err := tx.Create(&job).Error; err != nil {
+				tx.Rollback()
+				return fmt.Errorf("failed creating job: %w", err)
+			}
+		}
+
+		if err := tx.Commit().Error; err != nil {
+			return fmt.Errorf("failed committing transaction: %w", err)
+		}
+
+		log.Println("Successfully seeded Project with Jobs and Skills.")
 	}
 
 	return nil

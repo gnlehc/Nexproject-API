@@ -90,7 +90,6 @@ func RegisterTalent(c *gin.Context) {
 		FullName:     req.FullName,
 		ActiveStatus: true,
 		HireCount:    0,
-		PhoneNumber:  req.PhoneNumber,
 	}
 
 	if err := database.GlobalDB.Create(&talent).Error; err != nil {
@@ -487,5 +486,50 @@ func SaveJob(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.BaseResponseDTO{
 		StatusCode: http.StatusCreated,
 		Message:    "Success",
+	})
+}
+
+func GetAllAppliedJobsByTalentID(c *gin.Context) {
+	db := database.GlobalDB
+
+	var req struct {
+		TalentID string `json:"TalentID" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	talentUUID, err := uuid.Parse(req.TalentID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid TalentID format",
+		})
+		return
+	}
+
+	var jobs []model.Job
+	if err := db.Joins("JOIN tr_applications ON tr_applications.job_id = jobs.job_id").
+		Where("tr_applications.talent_id = ?", talentUUID).
+		Preload("Skills").
+		Find(&jobs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Failed to retrieve applied jobs: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response.GetAllJobResponseDTO{
+		BaseResponse: response.BaseResponseDTO{
+			StatusCode: http.StatusOK,
+			Message:    "Success",
+		},
+		Jobs: jobs,
 	})
 }

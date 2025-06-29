@@ -54,7 +54,7 @@ func PostJob(c *gin.Context) {
 		return
 	}
 
-	var jobRequest request.JobRequestDTO
+	var jobRequest request.AddJobRequestDTO
 	if err := c.ShouldBindJSON(&jobRequest); err != nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
 			Message:    err.Error(),
@@ -83,6 +83,25 @@ func PostJob(c *gin.Context) {
 		return
 	}
 
+	var skills []model.Skill
+	for _, s := range jobRequest.Skills {
+		var skill model.Skill
+		if err := db.Where("skill_name = ?", s.SkillName).First(&skill).Error; err != nil {
+			skill = model.Skill{
+				SkillID:   uuid.New(),
+				SkillName: s.SkillName,
+			}
+			if err := db.Create(&skill).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+					Message:    "Unable to create skill: " + err.Error(),
+					StatusCode: http.StatusInternalServerError,
+				})
+				return
+			}
+		}
+		skills = append(skills, skill)
+	}
+
 	job := model.Job{
 		JobID:          uuid.New(),
 		ProjectID:      jobRequest.ProjectID,
@@ -95,6 +114,7 @@ func PostJob(c *gin.Context) {
 		Active:         jobRequest.Active,
 		Location:       jobRequest.Location,
 		CreatedAt:      time.Now(),
+		Skills:         skills,
 	}
 
 	if err := db.Create(&job).Error; err != nil {
@@ -103,17 +123,6 @@ func PostJob(c *gin.Context) {
 			StatusCode: http.StatusInternalServerError,
 		})
 		return
-	}
-
-	if len(jobRequest.Skills) > 0 {
-		job.Skills = append(job.Skills, jobRequest.Skills...)
-		if err := db.Save(&job).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
-				Message:    "Unable to associate skills with job: " + err.Error(),
-				StatusCode: http.StatusInternalServerError,
-			})
-			return
-		}
 	}
 
 	c.JSON(http.StatusCreated, response.BaseResponseDTO{
@@ -158,6 +167,22 @@ func ApplyJob(c *gin.Context) {
 		return
 	}
 
+	var job model.Job
+	if err := db.Where("job_id = ? AND project_id = ?", req.JobID, req.ProjectID).First(&job).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
+				StatusCode: http.StatusBadRequest,
+				Message:    "The job does not belong to the specified project",
+			})
+		} else {
+			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Database error: " + err.Error(),
+			})
+		}
+		return
+	}
+
 	var existingApplication model.TrApplication
 	if err := db.Where("job_id = ? AND talent_id = ?", req.JobID, req.TalentID).First(&existingApplication).Error; err == nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
@@ -168,11 +193,13 @@ func ApplyJob(c *gin.Context) {
 	}
 
 	application := model.TrApplication{
-		AppID:    uuid.New(),
-		TalentID: req.TalentID,
-		JobID:    req.JobID,
-		StatusID: 1,
+		AppID:     uuid.New(),
+		TalentID:  req.TalentID,
+		JobID:     req.JobID,
+		ProjectID: req.ProjectID,
+		StatusID:  1,
 	}
+
 	if err := db.Create(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
 			Message:    "Unable to apply for job: " + err.Error(),

@@ -41,3 +41,8 @@ type GetTalentSkillsResponseDTO struct {
 	Skills       []model.Skill
 	BaseResponse BaseResponseDTO
 }
+
+type GetTalentsAppliedJobsResponseDTO struct {
+	BaseOutput BaseResponseDTO
+	Data       []model.Job
+}

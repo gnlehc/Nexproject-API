@@ -8,12 +8,9 @@ type SMELoginRequestDTO struct {
 }
 
 type SMERegisterRequestDTO struct {
+	CompanyName string
 	Email       string
 	Password    string
-	CompanyName string
-	CEO         string
-	PhoneNumber string
-	SMETypeID   uuid.UUID
 }
 
 type EditSMERequestDTO struct {
@@ -26,5 +23,6 @@ type EditSMERequestDTO struct {
 	Social             string    `json:"social"`
 	PhoneNumber        string    `json:"phone_number"`
 	ActiveStatus       bool      `json:"active_status"`
-	SMETypeID          uuid.UUID `json:"sme_type_id" gorm:"type:uuid"`
+	SMEType            string    `json:"sme_type"`
+	Location           string    `json:"location"`
 }

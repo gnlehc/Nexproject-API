@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type JobRequestDTO struct {
+type AddJobRequestDTO struct {
 	SMEID          uuid.UUID
 	JobTitle       string
 	JobDescription string

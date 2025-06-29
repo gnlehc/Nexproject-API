@@ -8,7 +8,7 @@ type TrApplication struct {
 	TalentID  uuid.UUID         `json:"TalentID" gorm:"type:uuid"`
 	Talent    Talent            `json:"Talent" gorm:"foreignKey:TalentID"`
 	ProjectID uuid.UUID         `json:"ProjectID" gorm:"type:uuid"`
-	Project   Project           `json:"Project" gorm:"foreignKey:JobID"`
+	Project   Project           `json:"Project" gorm:"foreignKey:ProjectID;references:ProjectID"`
 	JobID     uuid.UUID         `json:"JobID" gorm:"type:uuid"`
 	Job       Job               `json:"Job" gorm:"foreignKey:JobID"`
 	StatusID  int               `json:"StatusID"`

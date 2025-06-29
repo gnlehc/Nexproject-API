@@ -89,9 +89,8 @@ func RegisterSME(c *gin.Context) {
 		Password:     hashedPassword,
 		CompanyName:  req.CompanyName,
 		ActiveStatus: true,
-		CEO:          req.CEO,
-		SMETypeID:    req.SMETypeID,
-		PhoneNumber:  req.PhoneNumber,
+		CEO:          "",
+		PhoneNumber:  "",
 	}
 
 	if err := database.GlobalDB.Create(&sme).Error; err != nil {
@@ -180,7 +179,8 @@ func EditSMEDetails(c *gin.Context) {
 	sme.Social = req.Social
 	sme.PhoneNumber = req.PhoneNumber
 	sme.ActiveStatus = req.ActiveStatus
-	sme.SMETypeID = req.SMETypeID
+	sme.SMEType = req.SMEType
+	sme.Location = req.Location
 
 	if err := db.Save(&sme).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{

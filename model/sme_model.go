@@ -12,8 +12,8 @@ type SME struct {
 	Social             string    `json:"Social"`
 	PhoneNumber        string    `json:"PhoneNumber"`
 	ActiveStatus       bool      `json:"ActiveStatus"`
+	SMEType            string    `json:"SMEType"`
 	// Foreignkey
-	SMETypeID uuid.UUID `json:"SMETypeID" gorm:"type:uuid"`
-	SMEType   SMEType   `json:"SMEType" gorm:"foreignKey:SMETypeID"`
-	Projects  []Project `json:"Projects" gorm:"foreignKey:SMEID"`
+	Projects []Project `json:"Projects" gorm:"foreignKey:SMEID"`
+	Location string    `json:"Location"`
 }

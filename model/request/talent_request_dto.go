@@ -10,10 +10,9 @@ type TalentLoginRequestDTO struct {
 }
 
 type TalentRegisterRequestDTO struct {
-	Email       string
-	Password    string
-	FullName    string
-	PhoneNumber string
+	Email    string
+	Password string
+	FullName string
 }
 
 type GetAllTalentByAppIDRequestDTO struct {

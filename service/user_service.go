@@ -22,7 +22,7 @@ func UserRoutes(private *gin.RouterGroup) {
 	private.POST("/get-all-talent-by-appid", helper.GetAllTalentByAppID)
 	private.GET("/get-sme-detail", helper.GetSMEDetail)
 	private.GET("/get-talent-detail", helper.GetTalentDetail)
-	private.GET("/get-user-role", helper.DetermineUserRoleByJWT)
+	private.GET("/get-user-role", helper.DetermineUserRoleByEmail)
 	private.POST("/get-all-applicants-on-a-job", helper.GetAllApplicantsByJobID)
 	private.POST("/get-talent-skills", helper.GetTalentSkills)
 	private.POST("/add-talent-skills", helper.AddTalentSkills)
@@ -30,4 +30,5 @@ func UserRoutes(private *gin.RouterGroup) {
 
 	private.POST("/edit-talent", helper.EditTalentDetail)
 	private.POST("/edit-sme", helper.EditSMEDetails)
+	private.POST("/get-all-my-applied-jobs", helper.GetAllAppliedJobsByTalentID)
 }

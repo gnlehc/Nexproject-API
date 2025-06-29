@@ -7,6 +7,7 @@ import (
 	"nexproject/model"
 	"nexproject/model/request"
 	"nexproject/model/response"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -104,12 +105,13 @@ func GetProjectByID(c *gin.Context) {
 	})
 }
 
-func PostProject(c *gin.Context) {
+func AddProject(c *gin.Context) {
 	db := database.GlobalDB
+
 	role, err := GetUserRole(c)
-	if err != nil || role != "SME" {
+	if err != nil || strings.ToLower(role) != "sme" {
 		c.JSON(http.StatusForbidden, response.BaseResponseDTO{
-			Message:    "Unauthorized: Only SME can create project",
+			Message:    "You are not authorized to create a project",
 			StatusCode: http.StatusForbidden,
 		})
 		return
@@ -135,7 +137,7 @@ func PostProject(c *gin.Context) {
 	var sme model.SME
 	if err := db.First(&sme, "sme_id = ?", req.SMEID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, response.BaseResponseDTO{
-			Message:    "Invalid SME ID: " + err.Error(),
+			Message:    "SME not found: " + err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})
 		return
@@ -161,6 +163,27 @@ func PostProject(c *gin.Context) {
 	}
 
 	for _, jobReq := range req.Jobs {
+		var skills []model.Skill
+
+		for _, s := range jobReq.Skills {
+			var skill model.Skill
+			if err := db.Where("skill_name = ?", s.SkillName).First(&skill).Error; err != nil {
+				skill = model.Skill{
+					SkillID:   uuid.New(),
+					SkillName: s.SkillName,
+				}
+				if err := tx.Create(&skill).Error; err != nil {
+					tx.Rollback()
+					c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
+						Message:    "Unable to create skill: " + err.Error(),
+						StatusCode: http.StatusInternalServerError,
+					})
+					return
+				}
+			}
+			skills = append(skills, skill)
+		}
+
 		job := model.Job{
 			JobID:          uuid.New(),
 			ProjectID:      projectID,
@@ -173,7 +196,9 @@ func PostProject(c *gin.Context) {
 			Active:         jobReq.Active,
 			Location:       jobReq.Location,
 			CreatedAt:      time.Now(),
+			Skills:         skills,
 		}
+
 		if err := tx.Create(&job).Error; err != nil {
 			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
@@ -185,6 +210,7 @@ func PostProject(c *gin.Context) {
 	}
 
 	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, response.BaseResponseDTO{
 			Message:    "Failed to commit transaction: " + err.Error(),
 			StatusCode: http.StatusInternalServerError,
