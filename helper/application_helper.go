@@ -133,3 +133,26 @@ func UpdateApplicationStatus(c *gin.Context) {
 		StatusCode: http.StatusOK,
 	})
 }
+
+func GetAllApplications(c *gin.Context) {
+	db := database.GlobalDB
+
+	var results []model.TrApplication
+
+	if err := db.Find(&results).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Failed to get applications: " + err.Error(),
+		})
+		return
+	}
+
+	response := response.GetAllApplicationsResponseDTO{
+		Data: results,
+		BaseOutput: response.BaseResponseDTO{
+			Message:    "Successfully retrieved applications",
+			StatusCode: 200,
+		},
+	}
+	c.JSON(http.StatusOK, response)
+}
