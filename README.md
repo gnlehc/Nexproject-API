@@ -1,11 +1,17 @@
-![nexproject_logo](https://github.com/user-attachments/assets/6f01ed33-778b-4b45-a359-e28fc7d29866)
+<img src="https://drive.google.com/uc?export=view&id=1OBNMfwxtol7bCXhroFOKVem7VMu2TuE9" alt="NexProject Preview" width="700"/>
 
-# nexproject API
-nexproject is a platform dedicated to advancing Sustainable Development Goal 8 (SDG 8) by supporting inclusive economic growth and promoting decent work for all. Designed for Small and Medium Enterprises (SMEs)
+# Nexproject
+Nexproject adalah platform pertama di Indonesia yang menghubungkan mahasiswa dan UMKM - memberikan ruang bagi mahasiswa untuk membangun portofolio, sekaligus membantu UMKM memenuhi kebutuhan kreatif dan digital mereka.
+---
 
-## About SDG 8
-**SDG 8** is a global initiative that aims to promote sustained, inclusive, and sustainable economic growth, full and productive employment, and decent work for all. By facilitating job creation and connecting SMEs with diverse talent, nexproject contributes to a fairer job market where economic opportunities are accessible to everyone.
+## ⚙️ Tech Stack
 
+- **Frontend**: Vue.js + Vite
+- **Backend**: Go (Gin framework)
+- **Database**: PostgreSQL
+- **Deployment**: Docker
+---
+  
 ## Getting Started
 ### Prerequisites
 - **Go**: Ensure the latest version of Go is installed.
